@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,11 +28,16 @@ public class RepositoryController {
 
         try {
             GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
-            List<String> repoNames = new ArrayList<>();
+            List<Map<String, String>> repositories = new ArrayList<>();
+
             for (GHRepository repo : github.getMyself().getRepositories().values()) {
-                repoNames.add(repo.getName());
+                Map<String, String> repoInfo = new HashMap<>();
+                repoInfo.put("name", repo.getName());
+                repoInfo.put("owner", repo.getOwnerName());
+                repositories.add(repoInfo);
             }
-            model.addAttribute("repos", repoNames);
+
+            model.addAttribute("repositories", repositories);
         } catch (IOException e) {
             model.addAttribute("error", "GitHub API 연동 오류: " + e.getMessage());
         }

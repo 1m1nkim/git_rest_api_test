@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Commit History</title>
+</head>
+<body>
+<h1>Commit History for <span th:text="${owner + '/' + repoName}"></span></h1>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>SHA</th>
+        <th>Author</th>
+        <th>Date</th>
+        <th>Message</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="commit : ${commits}">
+        <td th:text="${commit.getSHA1().substring(0, 7)}"></td>
+        <td th:text="${commit.getCommitter().getName()}"></td>
+        <td th:text="${#dates.format(commit.getCommitDate(), 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${commit.getCommitShortInfo().getMessage()}"></td>
+        <td>
+            <a th:href="@{'/repos/' + ${owner} + '/' + ${repoName} + '/commit/' + ${commit.getSHA1()}}">
+                변경 내역 보기
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${currentPage > 1}">
+    <a th:href="@{'/repos/' + ${owner} + '/' + ${repoName} + '/commits?page=' + ${currentPage - 1} + '&perPage=' + ${perPage}}">이전 페이지</a>
+</div>
+
+<div>
+    <a th:href="@{'/repos/' + ${owner} + '/' + ${repoName} + '/commits?page=' + ${currentPage + 1} + '&perPage=' + ${perPage}}">다음 페이지</a>
+</div>
+
+<p th:if="${error != null}" th:text="${error}"></p>
+
+<p><a href="/repos">Back to Repositories</a></p>
+</body>
+</html>

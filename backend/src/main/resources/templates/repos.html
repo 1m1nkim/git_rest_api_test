@@ -8,7 +8,10 @@
 <h1>Your GitHub Repositories</h1>
 
 <ul>
-    <li th:each="repo : ${repos}" th:text="${repo}"></li>
+    <li th:each="repo : ${repositories}">
+        <a th:href="@{'/repos/' + ${repo.owner} + '/' + ${repo.name} + '/commits'}"
+           th:text="${repo.name}"></a>
+    </li>
 </ul>
 
 <p th:if="${error != null}" th:text="${error}"></p>
