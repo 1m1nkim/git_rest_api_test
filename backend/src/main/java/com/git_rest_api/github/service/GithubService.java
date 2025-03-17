@@ -1,6 +1,5 @@
 package com.git_rest_api.github.service;
 
-import lombok.RequiredArgsConstructor;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -39,13 +38,11 @@ public class GithubService {
         }
     }
 
-    // 커밋 상세 정보 조회
     public GHCommit getCommitDetail(String owner, String repoName, String sha) throws IOException {
         GHRepository repository = github.getRepository(owner + "/" + repoName);
         return repository.getCommit(sha);
     }
 
-    // 특정 파일의 diff 정보 조회
     public String getFileDiff(String owner, String repoName, String sha, String filePath) throws IOException {
         // GitHub API에서 diff 형식으로 데이터 요청
         HttpHeaders headers = new HttpHeaders();
@@ -67,10 +64,8 @@ public class GithubService {
         return extractFileDiff(fullDiff, filePath);
     }
 
-    // 전체 diff에서 특정 파일의 diff만 추출하는 헬퍼 메소드
     private String extractFileDiff(String fullDiff, String filePath) {
         // diff 파싱 로직 구현
-        // 여기서는 간단한 구현만 제공
         String[] diffParts = fullDiff.split("diff --git");
 
         for (String part : diffParts) {
@@ -82,7 +77,6 @@ public class GithubService {
         return "해당 파일의 변경 내역을 찾을 수 없습니다.";
     }
 
-    // 커밋의 변경 내용을 파싱하여 변경 전/후 코드를 반환
     public Map<String, String> parseFileDiff(String diff) {
         Map<String, String> result = new HashMap<>();
 

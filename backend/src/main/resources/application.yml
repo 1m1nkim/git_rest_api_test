@@ -15,7 +15,12 @@ spring:
             scope:
               - repo
               - user
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 github:
   token: ${GIT_API}
   username: ${GIT_USERNAME}
+
