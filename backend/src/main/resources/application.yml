@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: git_api
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GIT_OAUTH_API}
+            client-secret: ${GIT_OAUTH_SECRET}
+            redirect-uri: http://localhost:8080/login/oauth2/code/github
+            scope:
+              - repo
+              - user
+
+github:
+  token: ${GIT_API}
+  username: ${GIT_USERNAME}

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your GitHub Repositories</title>
+</head>
+<body>
+<h1>Your GitHub Repositories</h1>
+
+<ul>
+    <li th:each="repo : ${repos}" th:text="${repo}"></li>
+</ul>
+
+<p th:if="${error != null}" th:text="${error}"></p>
+
+<p><a href="/">Back to Home</a></p>
+</body>
+</html>

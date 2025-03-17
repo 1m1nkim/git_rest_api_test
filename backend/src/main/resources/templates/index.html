@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Code Review System</title>
+</head>
+<body>
+<h1 th:if="${username != null}">
+    Welcome, <span th:text="${username}">User</span>!
+</h1>
+<h1 th:if="${username == null}">
+    Welcome, Guest!
+</h1>
+<p>
+    <a href="/repos">View Your GitHub Repositories</a>
+</p>
+</body>
+</html>
