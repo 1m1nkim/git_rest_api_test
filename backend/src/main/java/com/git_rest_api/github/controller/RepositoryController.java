@@ -30,17 +30,22 @@ public class RepositoryController {
             GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
             List<Map<String, String>> repositories = new ArrayList<>();
 
-            for (GHRepository repo : github.getMyself().getRepositories().values()) {
-                Map<String, String> repoInfo = new HashMap<>();
-                repoInfo.put("name", repo.getName());
-                repoInfo.put("owner", repo.getOwnerName());
-                repositories.add(repoInfo);
+            // 수정된 부분: listRepositories()에서 직접 필터링
+            for (GHRepository repo : github.getMyself().listRepositories()) {
+                // 사용자가 소유한 레포지토리만 필터링
+                if (repo.getOwnerName().equals(github.getMyself().getLogin())) {
+                    Map<String, String> repoInfo = new HashMap<>();
+                    repoInfo.put("name", repo.getName());
+                    repoInfo.put("owner", repo.getOwnerName());
+                    repositories.add(repoInfo);
+                }
             }
 
             model.addAttribute("repositories", repositories);
         } catch (IOException e) {
             model.addAttribute("error", "GitHub API 연동 오류: " + e.getMessage());
         }
-        return "repos";  // src/main/resources/templates/repos.html
+        return "repos";
     }
+
 }
