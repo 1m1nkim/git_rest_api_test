@@ -4,65 +4,67 @@ import com.git_rest_api.github.service.GithubService;
 import lombok.RequiredArgsConstructor;
 import org.kohsuke.github.GHCommit;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CommitController {
 
     private final GithubService githubService;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @GetMapping("/repos/{owner}/{repo}/commits")
-    public String viewCommits(@PathVariable String owner,
-                              @PathVariable String repo,
-                              @RequestParam(defaultValue = "1") int page,
-                              @RequestParam(defaultValue = "10") int perPage,
-                              Model model) {
+    @GetMapping("/api/repos/{owner}/{repo}/commits")
+    public ResponseEntity<Map<String, Object>> getCommits(
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int perPage) {
         try {
-            // 캐시 키 생성 - 페이지 정보 포함
             String cacheKey = "commits:" + owner + ":" + repo + ":" + page + ":" + perPage;
 
-            // 캐시에서 데이터 조회
             @SuppressWarnings("unchecked")
             Map<String, Object> cachedData = (Map<String, Object>) redisTemplate.opsForValue().get(cacheKey);
 
             if (cachedData != null) {
-                // 캐시된 데이터가 있으면 모델에 추가
-                model.addAllAttributes(cachedData);
+                return ResponseEntity.ok(cachedData);
             } else {
-                // 캐시된 데이터가 없으면 GitHub API 호출
                 List<GHCommit> commits = githubService.getRecentCommits(owner, repo, page, perPage);
 
-                // 모델에 데이터 추가
-                model.addAttribute("commits", commits);
-                model.addAttribute("repoName", repo);
-                model.addAttribute("owner", owner);
-                model.addAttribute("currentPage", page);
-                model.addAttribute("perPage", perPage);
+                // GHCommit 객체를 직렬화 가능한 간단한 Map 객체로 변환
+                List<Map<String, Object>> simplifiedCommits = new ArrayList<>();
+                for (GHCommit commit : commits) {
+                    Map<String, Object> commitInfo = new HashMap<>();
+                    commitInfo.put("sha", commit.getSHA1());
+                    commitInfo.put("authorName", commit.getAuthor().getName());
+                    commitInfo.put("authorEmail", commit.getAuthor().getEmail());
+                    commitInfo.put("commitDate", commit.getCommitDate());
+                    commitInfo.put("message", commit.getCommitShortInfo().getMessage());
+                    simplifiedCommits.add(commitInfo);
+                }
 
-                // 모델 데이터를 캐시에 저장
                 Map<String, Object> dataToCache = new HashMap<>();
-                dataToCache.put("commits", commits);
+                dataToCache.put("commits", simplifiedCommits); // 변환된 객체 저장
                 dataToCache.put("repoName", repo);
                 dataToCache.put("owner", owner);
                 dataToCache.put("currentPage", page);
                 dataToCache.put("perPage", perPage);
 
                 redisTemplate.opsForValue().set(cacheKey, dataToCache, 10, TimeUnit.MINUTES);
+
+                return ResponseEntity.ok(dataToCache);
             }
         } catch (Exception e) {
-            model.addAttribute("error", "커밋 내역 조회 중 오류 발생: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to fetch commits: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
         }
-        return "commits";
     }
 }
