@@ -58,8 +58,8 @@ public class RepositoryController {
                     }
                 }
 
-                // 결과를 Redis에 저장 (30분 만료)
-                redisTemplate.opsForValue().set(cacheKey, repositories, 30, TimeUnit.MINUTES);
+                // 결과를 Redis에 저장
+                redisTemplate.opsForValue().set(cacheKey, repositories, 10, TimeUnit.MINUTES);
 
                 model.addAttribute("repositories", repositories);
                 model.addAttribute("fromCache", false);

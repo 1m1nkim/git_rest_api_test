@@ -78,7 +78,7 @@ public class CommitDetailController {
                 dataToCache.put("owner", owner);
                 dataToCache.put("repo", repo);
 
-                redisTemplate.opsForValue().set(cacheKey, dataToCache, 30, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cacheKey, dataToCache, 10, TimeUnit.MINUTES);
             }
         } catch (IOException e) {
             model.addAttribute("error", "커밋 상세 정보 조회 중 오류 발생: " + e.getMessage());

@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -64,13 +66,18 @@ public class RedisConfig {
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory,
                                           GenericJackson2JsonRedisSerializer serializer) {
         RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))
+                .entryTtl(Duration.ofMinutes(10))  // 30분에서 10분으로 변경
                 .disableCachingNullValues()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
+        // user_repos 캐시에 대한 특정 설정 추가
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("user_repos", cacheConfiguration);
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(cacheConfiguration)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
 }

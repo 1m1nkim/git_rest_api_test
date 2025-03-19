@@ -58,7 +58,7 @@ public class CommitController {
                 dataToCache.put("currentPage", page);
                 dataToCache.put("perPage", perPage);
 
-                redisTemplate.opsForValue().set(cacheKey, dataToCache, 30, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(cacheKey, dataToCache, 10, TimeUnit.MINUTES);
             }
         } catch (Exception e) {
             model.addAttribute("error", "커밋 내역 조회 중 오류 발생: " + e.getMessage());

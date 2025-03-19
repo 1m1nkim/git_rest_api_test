@@ -42,7 +42,7 @@ public class CommitDiffRestController {
         Map<String, String> result = githubService.parseFileDiff(diff);
 
         // 결과를 Redis에 저장 (30분 만료)
-        redisTemplate.opsForValue().set(cacheKey, result, 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(cacheKey, result, 10, TimeUnit.MINUTES);
 
         return result;
     }
