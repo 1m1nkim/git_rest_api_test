@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -15,7 +15,6 @@ export default function CommitDetail() {
     const [loading, setLoading] = useState(true);
     const [diffLoading, setDiffLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    // 통합 뷰 옵션 제거 - 항상 split 모드만 사용
     const viewMode = 'split';
 
     useEffect(() => {
@@ -79,7 +78,7 @@ export default function CommitDetail() {
 
     if (loading) {
         return (
-            <div className="max-w-6xl mx-auto p-8">
+            <div className="w-full p-4">
                 <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-8"></div>
                 <div className="animate-pulse space-y-4">
                     <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
@@ -96,7 +95,7 @@ export default function CommitDetail() {
 
     if (error) {
         return (
-            <div className="max-w-6xl mx-auto p-8">
+            <div className="w-full p-4">
                 <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded">
                     <div className="flex">
                         <div className="flex-shrink-0">
@@ -118,24 +117,24 @@ export default function CommitDetail() {
             </div>
         );
     }
-
     return (
-        <div className="max-w-6xl mx-auto p-8">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl md:text-3xl font-bold">
+        <div className="w-full h-screen flex flex-col p-4">
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold">
                     <span className="font-mono text-gray-500 dark:text-gray-400">{owner}/{repo}</span>
                     <span className="ml-2 text-lg text-gray-500 dark:text-gray-400 font-normal">커밋 상세</span>
                 </h1>
 
-                <Link href={`/repos/${owner}/${repo}/commits`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                    ← 커밋 히스토리
-                </Link>
+                <div className="flex items-center space-x-4">
+                    <Link href={`/repos/${owner}/${repo}/commits`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        ← 커밋 히스토리
+                    </Link>
+                </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl overflow-hidden mb-6 p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{commit.message}</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden mb-4 p-4">
+                <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">{commit.message}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -157,11 +156,11 @@ export default function CommitDetail() {
                 </div>
             </div>
 
-            {/* 파일 목록과 비교 뷰의 비율 변경 (1:6) */}
-            <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-                {/* 파일 목록 패널 - 더 좁게 조정 */}
-                <div className="lg:col-span-1">
-                    <h2 className="text-lg font-bold mb-4 flex items-center">
+            {/* 파일 목록과 비교 뷰의 비율 변경 (1:5) */}
+            <div className="flex flex-1 gap-4 h-full overflow-hidden">
+                {/* 파일 목록 패널 - 왼쪽에 고정 */}
+                <div className="w-64 flex-shrink-0">
+                    <h2 className="text-lg font-bold mb-3 flex items-center">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -182,8 +181,8 @@ export default function CommitDetail() {
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl overflow-hidden">
-                            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden h-[calc(100vh-280px)]">
+                            <ul className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto h-full">
                                 {changedFiles.map((file, index) => (
                                     <li
                                         key={index}
@@ -205,11 +204,11 @@ export default function CommitDetail() {
                     )}
                 </div>
 
-                {/* 파일 비교 패널 - 더 넓게 조정 */}
-                <div className="lg:col-span-6">
+                {/* 파일 비교 패널 - 넓게 표시 */}
+                <div className="flex-1 overflow-hidden">
                     {selectedFile !== null && changedFiles[selectedFile] && (
-                        <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl overflow-hidden">
-                            <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden h-full">
+                            <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
                                 <h3 className="font-medium text-gray-900 dark:text-gray-100 flex items-center">
                                     <svg className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -228,34 +227,37 @@ export default function CommitDetail() {
                                     <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                                         +{changedFiles[selectedFile].additions} -{changedFiles[selectedFile].deletions}
                                     </span>
-                                    {/* 통합 뷰/분할 뷰 선택 버튼 제거 */}
                                 </div>
                             </div>
 
-                            {/* 파일 비교 뷰 - 항상 분할 뷰만 표시 */}
+                            {/* 파일 비교 뷰 - 스크롤 분리된 버전 */}
                             {diffLoading ? (
                                 <div className="p-8 flex justify-center">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                                 </div>
                             ) : (
-                                // 수정된 분할 뷰 - 공통 스크롤 사용
-                                <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700 overflow-auto max-h-[70vh]">
-                                    <div>
-                                        <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 sticky top-0">
-                                            변경 전
+                                <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700 h-[calc(100vh-280px)]">
+                                    <div className="overflow-auto">
+                                        <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 sticky top-0 flex">
+                                            <div className="w-10 text-right pr-2 border-r border-gray-300 dark:border-gray-600">줄</div>
+                                            <div className="flex-1 pl-2">변경 전</div>
                                         </div>
-                                        <div>
+                                        <div className="overflow-x-auto">
                                             {fileDiff ? (
                                                 <div className="font-mono text-sm">
                                                     {fileDiff.oldContent.split('\n').map((line, idx) => (
-                                                        <pre
-                                                            key={`old-${idx}`}
-                                                            className={`px-4 py-1 ${
-                                                                line.startsWith('-') ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400' : ''
-                                                            }`}
-                                                        >
-                                                            {line}
-                                                        </pre>
+                                                        <div key={`old-${idx}`} className="flex">
+                                                            <div className="w-10 text-right pr-2 border-r border-gray-300 dark:border-gray-600 text-gray-500 select-none bg-gray-50 dark:bg-gray-700/30">
+                                                                {idx + 1}
+                                                            </div>
+                                                            <pre
+                                                                className={`px-4 py-1 whitespace-pre flex-1 ${
+                                                                    line.startsWith('-') ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400' : ''
+                                                                }`}
+                                                            >
+                                                                {line}
+                                                            </pre>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             ) : (
@@ -265,22 +267,27 @@ export default function CommitDetail() {
                                             )}
                                         </div>
                                     </div>
-                                    <div>
-                                        <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 sticky top-0">
-                                            변경 후
+                                    <div className="overflow-auto">
+                                        <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 sticky top-0 flex">
+                                            <div className="w-10 text-right pr-2 border-r border-gray-300 dark:border-gray-600">줄</div>
+                                            <div className="flex-1 pl-2">변경 후</div>
                                         </div>
-                                        <div>
+                                        <div className="overflow-x-auto">
                                             {fileDiff ? (
                                                 <div className="font-mono text-sm">
                                                     {fileDiff.newContent.split('\n').map((line, idx) => (
-                                                        <pre
-                                                            key={`new-${idx}`}
-                                                            className={`px-4 py-1 ${
-                                                                line.startsWith('+') ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' : ''
-                                                            }`}
-                                                        >
-                                                            {line}
-                                                        </pre>
+                                                        <div key={`new-${idx}`} className="flex">
+                                                            <div className="w-10 text-right pr-2 border-r border-gray-300 dark:border-gray-600 text-gray-500 select-none bg-gray-50 dark:bg-gray-700/30">
+                                                                {idx + 1}
+                                                            </div>
+                                                            <pre
+                                                                className={`px-4 py-1 whitespace-pre flex-1 ${
+                                                                    line.startsWith('+') ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' : ''
+                                                                }`}
+                                                            >
+                                                                {line}
+                                                            </pre>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             ) : (
